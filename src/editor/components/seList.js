@@ -1,34 +1,59 @@
 /* globals svgEditor */
-import 'elix/define/DropdownList.js'
 import { t } from '../locale.js'
 
 const template = document.createElement('template')
 template.innerHTML = `
 <style>
-elix-dropdown-list {
-  margin-top: 10px;
+.dropdown-trigger {
+  position: relative;
 }
 
-elix-dropdown-list:hover {
-  background-color: var(--icon-bg-color-hover);
+.dropdown {
+  display: inline-flex;
+  position: absolute;
+  vertical-align: top;
 }
 
-elix-dropdown-list::part(value) {
-  background-color: var(--main-bg-color);
+.dropdown.is-active .dropdown-menu {
+  display: block;
 }
 
-elix-dropdown-list::part(popup-toggle) {
+.dropdown.is-up .dropdown-menu {
+  bottom: 100%;
+  margin-bottom: 20px;
+  padding-top: initial;
+  top: auto;
+}
+
+.dropdown-menu {
   display: none;
+  left: 0;
+  min-width: 1rem;
+  padding-top: 4px;
+  position: absolute;
+  top: 100%;
+  z-index: 10000;
 }
-::slotted(*) {
-  padding:0;
-  width:100%;
+
+.dropdown-content {
+  background-color: white;
+  border-radius: 4px;
+  padding-bottom: 1px;
+  padding-top: 1px;
 }
+
 </style>
-  <label>Label</label>
-  <elix-dropdown-list>
-    <slot></slot>
-  </elix-dropdown-list>
+<label>Label</label>
+<div class="dropdown-trigger">
+<img alt="icon" style="display: block;" src="./images/linejoin_miter.svg" height="22px">
+</div>
+<div class="dropdown is-up">
+  <div class="dropdown-menu " id="menu" role="menu">
+    <div class="dropdown-content">
+        <slot></slot>
+    </div>
+  </div>
+</div>
 
 `
 /**
@@ -43,9 +68,10 @@ export class SeList extends HTMLElement {
     // create the shadowDom and insert the template
     this._shadowRoot = this.attachShadow({ mode: 'open' })
     this._shadowRoot.append(template.content.cloneNode(true))
-    this.$dropdown = this._shadowRoot.querySelector('elix-dropdown-list')
+    this.$dropdown = this._shadowRoot.querySelector('.dropdown-trigger')
+    this.$dropdownMenu = this._shadowRoot.querySelector('.dropdown')
     this.$label = this._shadowRoot.querySelector('label')
-    this.$selection = this.$dropdown.shadowRoot.querySelector('#value')
+    // this.$selection = this.$dropdown.shadowRoot.querySelector('#value')
     this.items = this.querySelectorAll('se-list-item')
     this.imgPath = svgEditor.configObj.curConfig.imgPath
   }
@@ -82,6 +108,7 @@ export class SeList extends HTMLElement {
         this.$dropdown.style.width = newValue
         break
       case 'value':
+        /*
         Array.from(this.items).forEach(function (element) {
           if (element.getAttribute('value') === newValue) {
             if (element.hasAttribute('src')) {
@@ -98,6 +125,7 @@ export class SeList extends HTMLElement {
             }
           }
         })
+        */
         break
       default:
         console.error(`unknown attribute: ${name}`)
@@ -175,6 +203,10 @@ export class SeList extends HTMLElement {
    */
   connectedCallback () {
     const currentObj = this
+    this.$dropdown.addEventListener('click', (e) => {
+      this.$dropdownMenu.classList.toggle('is-active')
+      console.log(e)
+    })
     this.$dropdown.addEventListener('selectedindexchange', (e) => {
       if (e?.detail?.selectedIndex !== undefined) {
         const value = this.$dropdown.selectedItem.getAttribute('value')
@@ -183,12 +215,6 @@ export class SeList extends HTMLElement {
         currentObj.value = value
         currentObj.setAttribute('value', value)
       }
-    })
-    this.$dropdown.addEventListener('close', (_e) => {
-      /** with Chrome, selectedindexchange does not fire consistently
-      * unless you forec change in this close event
-      */
-      this.$dropdown.selectedIndex = this.$dropdown.currentIndex
     })
   }
 }

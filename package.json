@@ -80,6 +80,7 @@
   },
   "dependencies": {
     "browser-fs-access": "0.29.6",
+    "bulma": "^0.9.4",
     "core-js": "3.23.1",
     "elix": "15.0.1",
     "html2canvas": "1.4.1",

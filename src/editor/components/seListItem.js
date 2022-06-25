@@ -1,22 +1,29 @@
 /* globals svgEditor */
-import 'elix/define/Option.js'
 import { t } from '../locale.js'
 
 const template = document.createElement('template')
 template.innerHTML = `
   <style>
-  elix-option{
-    padding:0.25rem 0.125rem !important;
-    background-color: var(--icon-bg-color);
+  .dropdown-item {
+    color: #4a4a4a;
+    display: block;
+    position: relative;
   }
-  elix-option:hover{
-    background-color: var(--icon-bg-color-hover);
+  
+  .dropdown-divider {
+    background-color: #ededed;
+    border: none;
+    display: block;
+    height: 1px;
+    margin-top: 0px;
+    margin-bottom: 0px;
   }
   </style>
-  <elix-option aria-label="option">
+  <div class="dropdown-item">
     <img alt="icon" />
     <slot></slot>
-  </elix-option>
+  </div>
+  <hr class="dropdown-divider">
 `
 /**
  * @class SeMenu
@@ -30,9 +37,7 @@ export class SeListItem extends HTMLElement {
     // create the shadowDom and insert the template
     this._shadowRoot = this.attachShadow({ mode: 'open' })
     this._shadowRoot.append(template.content.cloneNode(true))
-    this.$menuitem = this._shadowRoot.querySelector('elix-option')
-    this.$svg = this.$menuitem.shadowRoot.querySelector('#checkmark')
-    this.$svg.setAttribute('style', 'display: none;')
+    this.$menuitem = this._shadowRoot.querySelector('.dropdown-item')
     this.$img = this._shadowRoot.querySelector('img')
     this.$img.setAttribute('style', 'display: none;')
     this.imgPath = svgEditor.configObj.curConfig.imgPath
